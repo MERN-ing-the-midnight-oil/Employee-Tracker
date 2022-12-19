@@ -14,9 +14,7 @@ db.connect(function (error) {
 	if (error) throw error; //alternately could console log the error. if and throw are built in for this scenario
 	console.log("connected to database");
 });
-//Call main menu
 
-//this might work. it works in class example 11 Ins Connect-Node
 const viewAllEmployees = () => {
 	db.query("SELECT * FROM employees", function (err, results) {
 		console.log(results);
@@ -36,7 +34,7 @@ const mainMenu = () => {
 				type: "list",
 				name: "choice",
 				message: "What would you like to do? (Use arrow keys to navigate)",
-				options: [
+				choices: [
 					"View All Employees",
 					"Add Employee",
 					"Update Employee Role",
