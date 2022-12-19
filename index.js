@@ -1,6 +1,7 @@
 const inquirer = require("inquirer");
 const fs = require("fs");
 const mysql = require("mysql2");
+const cTable = require("console.table");
 
 //creates a connection to the database
 const db = mysql.createConnection({
@@ -14,19 +15,7 @@ db.connect(function (error) {
 	if (error) throw error; //alternately could console log the error. if and throw are built in for this scenario
 	console.log("connected to database");
 });
-
-const viewAllEmployees = () => {
-	db.query("SELECT * FROM employees", function (err, results) {
-		console.log(results);
-	});
-};
-//const addEmployee = () => {};
-//const updateEmployeeRole = () => {};
-//const viewAllRoles = () => {};
-//const addRole = () => {};
-//const viewAllDepartments = () => {};
-//const addDepartment = () => {};
-
+//MAIN MENU
 const mainMenu = () => {
 	inquirer
 		.prompt([
@@ -63,7 +52,21 @@ const mainMenu = () => {
 			}
 		});
 };
+//VIEW ALL EMPLOYEES
+const viewAllEmployees = () => {
+	db.query("SELECT * FROM employees", function (err, results) {
+		//console.log(results); //this works fine but lists the employees as objects
+		console.table([results]); //makes a table but unfortunately the employees are all [object Object]
+		//const table = cTable.getTable([results]); console.log(table); //unfortunately the names are all [object Object].
+	});
+};
 
+//TO DO:
+//const addEmployee = () => {};
+//const updateEmployeeRole = () => {};
+//const viewAllRoles = () => {};
+
+//ADD A ROLE
 const addRole = () => {
 	inquirer.prompt([
 		{
@@ -84,6 +87,8 @@ const addRole = () => {
 		},
 	]);
 };
+//const viewAllDepartments = () => {};
+//const addDepartment = () => {};
 
 mainMenu();
 
