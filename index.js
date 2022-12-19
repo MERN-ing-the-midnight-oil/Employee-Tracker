@@ -1,5 +1,93 @@
 const inquirer = require("inquirer");
 const fs = require("fs");
+const mysql = require("mysql2");
+
+//creates a connection to the database
+const db = mysql.createConnection({
+	host: "localhost",
+	user: "root",
+	password: "",
+	database: "tracker_db",
+});
+//defining and triggering//a callback funtion, as its a method running a function, its a function within a function so therefore it is a callback function.
+db.connect(function (error) {
+	if (error) throw error; //alternately could console log the error. if and throw are built in for this scenario
+	console.log("connected to database");
+});
+//Call main menu
+
+//this might work. it works in class example 11 Ins Connect-Node
+const viewAllEmployees = () => {
+	db.query("SELECT * FROM employees", function (err, results) {
+		console.log(results);
+	});
+};
+//const addEmployee = () => {};
+//const updateEmployeeRole = () => {};
+//const viewAllRoles = () => {};
+//const addRole = () => {};
+//const viewAllDepartments = () => {};
+//const addDepartment = () => {};
+
+const mainMenu = () => {
+	inquirer
+		.prompt([
+			{
+				type: "list",
+				name: "choice",
+				message: "What would you like to do? (Use arrow keys to navigate)",
+				options: [
+					"View All Employees",
+					"Add Employee",
+					"Update Employee Role",
+					"View All Roles",
+					"Add Role",
+					"View All Departments",
+					"Add Department",
+				],
+			},
+		])
+		.then((response) => {
+			if (response.choice === "View All Employees") {
+				viewAllEmployees(); //run viewAllEmployees
+			} else if (response.choice === "Add Employee") {
+				addEmployee(); //run addEmployee
+			} else if (response.choice === "Update Employee Role") {
+				updateEmployeeRole(); //run updateEmployeeRole
+			} else if (response.choice === "View All Roles") {
+				viewAllRoles(); //run viewAllRoles
+			} else if (response.choice === "Add Role") {
+				addRole(); //run addRole
+			} else if (response.choice === "View All Departments") {
+				viewAllDepartments(); //run viewAllDepartments
+			} else if (response.choice === "Add Department") {
+				addDepartment(); //run addDepartment
+			}
+		});
+};
+
+const addRole = () => {
+	inquirer.prompt([
+		{
+			type: "input",
+			message: "What is the name of the role?",
+			name: "roleAdded",
+		},
+		{
+			type: "input",
+			message: "What is the salary of the role?",
+			name: "salaryAdded",
+		},
+		{
+			type: "list",
+			name: "departmentAdded",
+			message: "Which department does the role belong to?",
+			choices: ["Engineering", "Finance", "Legal", "Sales", "Service"],
+		},
+	]);
+};
+
+mainMenu();
 
 //MAIN MENU
 //What would you like to do? (Use arrow keys to navigate)
@@ -22,27 +110,6 @@ const fs = require("fs");
 //Add Department
 //--------What is the name of the department you would like to add?
 //-------------(Move up and down to reveal more choices)
-
-const addRole = () => {
-	inquirer.prompt([
-		{
-			type: "input",
-			message: "What is the name of the role?",
-			name: "roleAdded",
-		},
-		{
-			type: "input",
-			message: "What is the salary of the role?",
-			name: "salaryAdded",
-		},
-		{
-			type: "list",
-			name: "departmentAdded",
-			message: "Which department does the role belong to?",
-			choices: ["Engineering", "Finance", "Legal", "Sales", "Service"],
-		},
-	]);
-};
 
 //check out 04-Slides> fs-12-SQL.pdf
 // Activity 11 in week 12 tells how to use a node package in MySQL2

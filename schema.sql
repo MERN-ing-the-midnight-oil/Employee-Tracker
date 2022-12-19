@@ -1,63 +1,24 @@
-
---My plan
---build the database schema
---seed the database with mock employees for all three tables
-
---makes sure I can query the database on the CLI (manually test them)
---I can select all employees , where department == whatever
---when finished, build out the inquirer prompts
-
---Just do the reads, not the adds. 
------E.G. WHEN I choose to view all departments
---THEN I am presented with a formatted table showing department names and department ids
-
-
 DROP DATABASE IF EXISTS tracker_db;
 CREATE DATABASE tracker_db;
-
 USE tracker_db;
 
 CREATE TABLE departments (
-  id INT NOT NULL PRIMARY KEY,
- deptname VARCHAR(30) NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ deptname VARCHAR(30) NOT NULL
 );
 CREATE TABLE role (
-  id INT NOT NULL  PRIMARY KEY,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) NOT NULL,
-  department_id INT NOT NULL,
+  department_id INT NOT NULL, 
+  FOREIGN KEY(department_id) REFERENCES departments(id),
   salary DECIMAL
 );
 CREATE TABLE employees (
-  id INT NOT NULL  PRIMARY KEY,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   role_id INT NOT NULL,
-  manager_id INT
+  manager_id INT,
+  FOREIGN KEY(role_id) REFERENCES role(id),
+  FOREIGN KEY(manager_id) REFERENCES employees(id)
 );
-
-
---Three Tables
---Department Table
-
---Role Table
-
--- Employee Table
-
-
--- GIVEN a command-line application that accepts user input
--- WHEN I start the application
--- THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
--- WHEN I choose to view all departments
--- THEN I am presented with a formatted table showing department names and department ids
--- WHEN I choose to view all roles
--- THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
--- WHEN I choose to view all employees
--- THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
--- WHEN I choose to add a department
--- THEN I am prompted to enter the name of the department and that department is added to the database
--- WHEN I choose to add a role
--- THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
--- WHEN I choose to add an employee
--- THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
--- WHEN I choose to update an employee role
--- THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
