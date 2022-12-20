@@ -56,7 +56,6 @@ const mainMenu = () => {
 		});
 };
 mainMenu();
-
 //VIEW ALL EMPLOYEES
 const viewAllEmployees = () => {
 	db.query("SELECT * FROM employees", function (err, results) {
@@ -64,7 +63,21 @@ const viewAllEmployees = () => {
 	});
 	mainMenu();
 };
-//ADD AN EMPLOYEE
+//VIEW ALL Roles
+const viewAllRoles = () => {
+	db.query("SELECT * FROM role", function (err, results) {
+		console.table(results);
+	});
+	mainMenu();
+};
+//VIEW ALL departments
+const viewAllDepartments = () => {
+	db.query("SELECT * FROM departments", function (err, results) {
+		console.table(results);
+	});
+	mainMenu();
+};
+//ADD AN EMPLOYEE //Currently this freezes after new employee input is taken.
 const addEmployee = () => {
 	//addEmployee will take place inside a db.query to the employee table so that current employee information is available throughout the process.
 	db.query("SELECT * FROM role", function (err, results) {
@@ -73,47 +86,47 @@ const addEmployee = () => {
 		//here we are filling an empty array with ONLY the titles (roles) from the employee table
 		for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
 		//return rolesArray;
-		console.log(rolesArray);
+		//console.log(rolesArray);
+		inquirer
+			.prompt([
+				{
+					type: "input",
+					message: "What is the employee's first name?",
+					name: "firstName",
+				},
+				{
+					type: "input",
+					message: "What is the employee's last name?",
+					name: "lastName",
+				},
+				{
+					type: "list",
+					name: "role",
+					message: "What is the employee's role? (select from list)",
+					choices: rolesArray,
+				},
+				// {
+				// 	type: "list",
+				// 	name: "employeeManager",
+				// 	message: "Who is the employee's manager? (select from list)",
+				// 	choices: [managerArray],
+				// },
+			])
+			.then((answers) => {
+				//maybe use prepared statements
+				db.query(
+					//I forget why we get to use question marks for the actual values we are pushing
+					"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
+					[answers.firstName, answers.lastName, answers.role],
+					function (err, results) {
+						//Prints the updated employee table all pretty
+						console.table(results);
+					}
+				);
+			});
 	});
-	inquirer
-		.prompt([
-			{
-				type: "input",
-				message: "What is the employee's first name?",
-				name: "firstName",
-			},
-			{
-				type: "input",
-				message: "What is the employee's last name?",
-				name: "lastName",
-			},
-			{
-				type: "list",
-				name: "role",
-				message: "What is the employee's role? (select from list)",
-				choices: rolesArray,
-			},
-			// {
-			// 	type: "list",
-			// 	name: "employeeManager",
-			// 	message: "Who is the employee's manager? (select from list)",
-			// 	choices: [managerArray],
-			// },
-		])
-		.then((answers) => {
-			//maybe use prepared statements
-			db.query(
-				//I forget why we get to use question marks for the actual values we are pushing
-				"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
-				[answers.firstName, answers.lastName, answers.role],
-				function (err, results) {
-					//Prints the updated employee table all pretty
-					console.table(results);
-				}
-			);
-		});
 	db.end(); //closes the connection , (do this after inquirer questions are done)
-	//mainMenu();
+	mainMenu();
 };
 
 //const updateEmployeeRole = () => {};
