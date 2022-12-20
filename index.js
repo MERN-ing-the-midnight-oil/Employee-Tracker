@@ -2,6 +2,7 @@ const inquirer = require("inquirer");
 const fs = require("fs");
 const mysql = require("mysql2");
 const cTable = require("console.table");
+const { json } = require("body-parser");
 
 //creates a connection to the database
 const db = mysql.createConnection({
@@ -15,7 +16,16 @@ db.connect(function (error) {
 	if (error) throw error; //alternately could console log the error. if and throw are built in for this scenario
 	console.log("connected to database");
 });
-//MAIN MENU
+
+//??I'm not sure if this is the best place to put roleArray???
+// const roleArray = () => {
+// 	db.query("SELECT * FROM role", function (err, results) {
+// 		console.log(results);
+// 		return json.parse(results); //should I parse the results?
+// 	});
+// };
+//MAIN MENU SELCTION
+
 const mainMenu = () => {
 	inquirer
 		.prompt([
@@ -52,45 +62,74 @@ const mainMenu = () => {
 			}
 		});
 };
+mainMenu();
 //VIEW ALL EMPLOYEES
 const viewAllEmployees = () => {
 	db.query("SELECT * FROM employees", function (err, results) {
-		//console.log(results); //this works fine but lists the employees as objects
-		console.table([results]); //makes a table but unfortunately the employees are all [object Object]
-		//const table = cTable.getTable([results]); console.log(table); //unfortunately the names are all [object Object].
+		console.table(results);
 	});
 };
 
-//TO DO:
-//const addEmployee = () => {};
+const addEmployee = () => {
+	inquirer.prompt([
+		{
+			type: "input",
+			message: "What is the employee's first name?",
+			name: "firstName",
+		},
+		{
+			type: "input",
+			message: "What is the employee's last name?",
+			name: "lastName",
+		},
+		{
+			type: "list",
+			name: "role",
+			message: "What is the employee's role? (select from list)",
+			choices: [roleArray], //any chance this will work?
+		},
+		{
+			type: "list",
+			name: "employeeManager",
+			message: "Who is the employee's manager? (select from list)",
+			choices: [managerArray],
+		},
+	]);
+};
+//Add Employee
+//-----What is the employee's first name?
+//-----What is the employee's last name?
+//-----What is the employee's role? (select from list)
+//-----Who is the employee's manager? (select from list)
+
 //const updateEmployeeRole = () => {};
 //const viewAllRoles = () => {};
 
 //ADD A ROLE
 const addRole = () => {
-	inquirer.prompt([
-		{
-			type: "input",
-			message: "What is the name of the role?",
-			name: "roleAdded",
-		},
-		{
-			type: "input",
-			message: "What is the salary of the role?",
-			name: "salaryAdded",
-		},
-		{
-			type: "list",
-			name: "departmentAdded",
-			message: "Which department does the role belong to?",
-			choices: ["Engineering", "Finance", "Legal", "Sales", "Service"],
-		},
-	]);
+	//declaring roleArray, an array of roles to choose from
 };
+inquirer.prompt([
+	{
+		type: "input",
+		message: "What is the name of the role?",
+		name: "roleAdded",
+	},
+	{
+		type: "input",
+		message: "What is the salary of the role?",
+		name: "salaryAdded",
+	},
+	{
+		type: "list",
+		name: "departmentAdded",
+		message: "Which department does the role belong to?",
+		choices: ["Engineering", "Finance", "Legal", "Sales", "Service"], //this actually needs to be dynamic, not static, I'm thinking.There is an "Add Role" so.
+	},
+]);
+
 //const viewAllDepartments = () => {};
 //const addDepartment = () => {};
-
-mainMenu();
 
 //MAIN MENU
 //What would you like to do? (Use arrow keys to navigate)
@@ -103,7 +142,7 @@ mainMenu();
 //-----What is the employee's role? (select from list)
 //-----Who is the employee's manager? (select from list)
 //Update Employee Role
-//------Which employee's role do you want to update? (select from list)
+//------Which employee's role do you want to update? (select from list of all employees)
 //View All Roles
 //Add Role
 //------What is the name of the role you would like to add?
