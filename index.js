@@ -91,7 +91,8 @@ const addEmployee = () => {
 const rolesArray = [];
 //here we are filling an empty array with ONLY the titles (roles) from the entire employee table query result
 //for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
-for (var i = 0; i < results.length; i++) rolesArray.push(roles.data[i].title);
+for (var i = 0; i < roles.data.length; i++)
+	rolesArray.push(roles.data[i].title);
 //console.log(rolesArray); //this works
 console.log(rolesArray);
 //console.log(roles);// this works, shows roles array, so inquirer SHOULD be able to use "roles"
