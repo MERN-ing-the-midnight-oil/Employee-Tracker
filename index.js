@@ -82,53 +82,57 @@ const viewAllDepartments = () => {
 const addEmployee = () => {
 	//addEmployee will take place inside a db.query to the employee table so that current employee information is available throughout the process.
 	let roles = db.query("SELECT * FROM role", function (err, results) {
-		console.log(results);
-	});
-	const rolesArray = [];
-	//here we are filling an empty array with ONLY the titles (roles) from the entire employee table query result
-	for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
-	//console.log(rolesArray); //this works
-	console.log(rolesArray);
-	//console.log(roles);// this works, shows roles array, so inquirer SHOULD be able to use "roles"
-	inquirer
-		.prompt([
-			{
-				type: "input",
-				message: "What is the employee's first name?",
-				name: "firstName",
-			},
-			{
-				type: "input",
-				message: "What is the employee's last name?",
-				name: "lastName",
-			},
-			{
-				type: "list",
-				name: "role",
-				message: "What is the employee's role? (select from list)",
-				choices: rolesArray,
-			},
-			// {
-			// 	type: "list",
-			// 	name: "employeeManager",
-			// 	message: "Who is the employee's manager? (select from list)",
-			// 	choices: [managerArray],
-			// },
-		])
-		.then((answers) => {
-			db.query(
-				//I forget why we get to use question marks for the actual values we are pushing. does this have to do with prepared statements to prevent injection?
-				"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
-				[answers.firstName, answers.lastName, answers.role],
-				function (err, results) {
-					//Prints the updated employee table all pretty
-					console.table(results);
-				}
-			);
-			db.end(); //closes the connection , (do this after inquirer questions are done)
-			mainMenu();
+		results.json({
+			data: results,
 		});
+	});
+	console.log(roles);
 };
+const rolesArray = [];
+//here we are filling an empty array with ONLY the titles (roles) from the entire employee table query result
+//for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
+for (var i = 0; i < results.length; i++) rolesArray.push(roles.data[i].title);
+//console.log(rolesArray); //this works
+console.log(rolesArray);
+//console.log(roles);// this works, shows roles array, so inquirer SHOULD be able to use "roles"
+inquirer
+	.prompt([
+		{
+			type: "input",
+			message: "What is the employee's first name?",
+			name: "firstName",
+		},
+		{
+			type: "input",
+			message: "What is the employee's last name?",
+			name: "lastName",
+		},
+		{
+			type: "list",
+			name: "role",
+			message: "What is the employee's role? (select from list)",
+			choices: rolesArray,
+		},
+		// {
+		// 	type: "list",
+		// 	name: "employeeManager",
+		// 	message: "Who is the employee's manager? (select from list)",
+		// 	choices: [managerArray],
+		// },
+	])
+	.then((answers) => {
+		db.query(
+			//I forget why we get to use question marks for the actual values we are pushing. does this have to do with prepared statements to prevent injection?
+			"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
+			[answers.firstName, answers.lastName, answers.role],
+			function (err, results) {
+				//Prints the updated employee table all pretty
+				console.table(results);
+			}
+		);
+		db.end(); //closes the connection , (do this after inquirer questions are done)
+		mainMenu();
+	});
 
 //const updateEmployeeRole = () => {};
 //const viewAllRoles = () => {};
