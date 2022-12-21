@@ -82,16 +82,14 @@ const viewAllDepartments = () => {
 const addEmployee = () => {
 	//addEmployee will take place inside a db.query to the employee table so that current employee information is available throughout the process.
 	let roles = db.query("SELECT * FROM role", function (err, results) {
-		//db.query("SELECT * FROM role", async function (err, results) {//I've added async in front of the function, is this a good place for it??
-		//console.log(results);
-		const rolesArray = [];
-		//here we are filling an empty array with ONLY the titles (roles) from the entire employee table query result
-		for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
-		//console.log(rolesArray); //this works
-		return rolesArray;
+		console.log(results);
 	});
+	const rolesArray = [];
+	//here we are filling an empty array with ONLY the titles (roles) from the entire employee table query result
+	for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
+	//console.log(rolesArray); //this works
+	console.log(rolesArray);
 	//console.log(roles);// this works, shows roles array, so inquirer SHOULD be able to use "roles"
-	let newRoles = roles;
 	inquirer
 		.prompt([
 			{
@@ -108,7 +106,7 @@ const addEmployee = () => {
 				type: "list",
 				name: "role",
 				message: "What is the employee's role? (select from list)",
-				choices: newRoles,
+				choices: rolesArray,
 			},
 			// {
 			// 	type: "list",
