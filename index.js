@@ -4,6 +4,7 @@ const mysql = require("mysql2");
 const cTable = require("console.table");
 const { json } = require("body-parser");
 const { leftPadder } = require("easy-table");
+const util = require("util");
 
 //creates a connection to the database
 const db = mysql.createConnection({
@@ -78,24 +79,14 @@ const viewAllDepartments = () => {
 	});
 	mainMenu();
 };
-//ADD AN EMPLOYEE //addEmployee has problems. Main menu launches itself spastically while the inquirer is waiting for user input.
-const addEmployee = () => {
-	//addEmployee will take place inside a db.query to the employee table so that current employee information is available throughout the process.
-	let roles = db.query("SELECT * FROM role", function (err, results) {
-		res.json({
-			data: results,
-		});
-	});
-	console.log("this is a console log of roles.data: ");
-	console.log(roles.data); //returning undefined
-	console.log("this is a console log of roles: ");
-	console.log(roles); // returning... a bunch of weird stuff?
 
-	const rolesArray = [];
-	//here we are filling an empty array with ONLY the titles (roles) from the entire employee table query result
-	//for (var i = 0; i < results.length; i++) rolesArray.push(results[i].title);
-	for (var i = 0; i < roles.data.length; i++)
-		rolesArray.push(roles.data[i].title);
+const addEmployee = async () => {
+	//await prevents code from running ahead before the query returns the promise.
+	const roles = await db.promise().query("SELECT * FROM role");
+	//console.log(roles[0]);
+	//gets the titles only (roles) and gives them to a new array called rolesArray
+	const rolesArray = roles[0].map((role) => role.title);
+	//console.log("console logging roles array ", rolesArray);
 	inquirer
 		.prompt([
 			{
@@ -114,7 +105,7 @@ const addEmployee = () => {
 				message: "What is the employee's role? (select from list)",
 				choices: rolesArray,
 			},
-			// {
+			// { //This functionality will be added in the future
 			// 	type: "list",
 			// 	name: "employeeManager",
 			// 	message: "Who is the employee's manager? (select from list)",
@@ -122,46 +113,54 @@ const addEmployee = () => {
 			// },
 		])
 		.then((answers) => {
+			//console.log("ANSWERS!!", answers);
 			db.query(
-				//I forget why we get to use question marks for the actual values we are pushing. does this have to do with prepared statements to prevent injection?
 				"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
 				[answers.firstName, answers.lastName, answers.role],
 				function (err, results) {
-					//Prints the updated employee table all pretty
+					//Prints the updated employee table in nice, neat, table.
 					console.table(results);
 				}
 			);
-			db.end(); //closes the connection , (do this after inquirer questions are done)
 			mainMenu();
 		});
 };
-//const updateEmployeeRole = () => {};
-//const viewAllRoles = () => {};
+const updateEmployeeRole = () => {
+	console.log("Functionality Coming Soon!");
+};
 
-//ADD A ROLE
+//ADD A ROLE //Coming Soon
 const addRole = () => {
-	inquirer.prompt([
-		{
-			type: "input",
-			message: "What is the name of the role?",
-			name: "roleAdded",
-		},
-		{
-			type: "input",
-			message: "What is the salary of the role?",
-			name: "salaryAdded",
-		},
-		{
-			type: "list",
-			name: "departmentAdded",
-			message: "Which department does the role belong to?",
-			choices: [departmentArray], //this actually needs to be dynamic, not static, I'm thinking.There will be an "Add Department " so yeah.
-		},
-	]);
+	console.log("Functionality coming soon!");
+	// inquirer.prompt([
+	// 	{
+	// 		type: "input",
+	// 		message: "What is the name of the role?",
+	// 		name: "roleAdded",
+	// 	},
+	// 	{
+	// 		type: "input",
+	// 		message: "What is the salary of the role?",
+	// 		name: "salaryAdded",
+	// 	},
+	// 	{
+	// 		type: "list",
+	// 		name: "departmentAdded",
+	// 		message: "Which department does the role belong to?",
+	// 		choices: [
+	// 			"Dummy Role 1",
+	// 			"Dummy Role 2",
+	// 			"The Real thing Coming Soon",
+	// 			"And it will be Dynamic",
+	// 		],
+	// 	},
+	// ]);
 	mainMenu();
 };
-//const viewAllDepartments = () => {};
-//const addDepartment = () => {};
+
+const addDepartment = () => {
+	console.log("Functionality coming soon!");
+};
 
 //MAIN MENU
 //What would you like to do? (Use arrow keys to navigate)
@@ -184,7 +183,3 @@ const addRole = () => {
 //Add Department
 //--------What is the name of the department you would like to add?
 //-------------(Move up and down to reveal more choices)
-
-//check out 04-Slides> fs-12-SQL.pdf
-// Activity 11 in week 12 tells how to use a node package in MySQL2
-//Node , on its own, doesn't know how to connect to MySQL. So we need the package. from packag.json in activity ll.
