@@ -148,13 +148,13 @@ const updateEmployeeRole = async () => {
 	const everyone = await db.promise().query("SELECT * FROM employees");
 	const everyoneArray = everyone[0].map((employees) => ({
 		name: employees.first_name + " " + employees.last_name,
-		value: employees.id,
+		value: employees.id, //the answer value that inquirer will use for "Which Employee's role would you like to update?"
 	}));
 	const roles = await db.promise().query("SELECT * FROM role");
 	//console.log(roles);
 	const rolesArray = roles[0].map((role) => ({
 		name: role.title,
-		value: role.id,
+		value: role.id, //the answer value that inquirer will use for "what is the employee's new role?""
 	}));
 	inquirer
 		.prompt([
@@ -162,7 +162,7 @@ const updateEmployeeRole = async () => {
 				type: "list",
 				name: "whichEmployee",
 				message: "Which Employee's role would you like to update?",
-				choices: everyoneArray, //user will see employees.first_name + " " + employees.last_name but inquirer will hand over .id
+				choices: everyoneArray, //user will see employees.first_name + " " + employees.last_name but inquirer will hand over employees.id
 			},
 			{
 				type: "list",
@@ -172,18 +172,15 @@ const updateEmployeeRole = async () => {
 			},
 		])
 		.then((answers) => {
+			console.log(answers);
+			//answers.role and answers.whichEmployee will actually give the query employeee role_id and employee id
 			db.query(
-				"UPDATE employees SET role_id = answers.role WHERE id = answers.whichEmployee"
+				`UPDATE employees SET role_id = ${answers.role} WHERE id = ${answers.whichEmployee}`
 			),
-				//[answers.role, answers.whichEmployee],//turning off the prepared statement for now
-				function (err, results) {
-					if (err) throw err;
-					//console.table(results);
-					console.log(`\n`);
-					console.log("---->YOUR EMPLOYEE HAS BEEN ASSIGNED A NEW ROLE'.<----");
-					console.log(`\n`);
-					mainMenu();
-				};
+				console.log(`\n`);
+			console.log("----> YOUR EMPLOYEE HAS BEEN ASSIGNED A NEW ROLE! <----");
+			console.log(`\n`);
+			mainMenu();
 		});
 };
 
