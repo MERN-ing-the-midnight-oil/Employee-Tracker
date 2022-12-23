@@ -82,15 +82,20 @@ const viewAllDepartments = () => {
 
 const addEmployee = async () => {
 	//await prevents code from running ahead before the query returns the promise.
-	const roles = await db.promise().query("SELECT * FROM role");
-	console.log(roles);
 	//gets the titles only (roles) and gives them to a new array called rolesArray
+	const roles = await db.promise().query("SELECT * FROM role");
+	//console.log(roles);
 	const rolesArray = roles[0].map((role) => ({
 		name: role.title,
 		value: role.id,
 	}));
+	//gets the managers only (manager_id) and gives them to a new array called managerArray
+	const everyone = await db.promise().query("SELECT * FROM employees");
 	//console.log("console logging roles array ", rolesArray);
-
+	const managersArray = everyone[0].map((employees) => ({
+		name: employees.first_name + " " + employees.last_name,
+		value: employees.id,
+	}));
 	inquirer
 		.prompt([
 			{
@@ -107,25 +112,31 @@ const addEmployee = async () => {
 				type: "list",
 				name: "role",
 				message: "What is the employee's role? (select from list)",
-				choices: rolesArray, //the user will see role.title, inquirer will hand back role.id
+				choices: rolesArray, //the user will see role.title, but inquirer will actually hand over role.id. Like a boss.
 			},
-			// { //This functionality will be added in the future
-			// 	type: "list",
-			// 	name: "employeeManager",
-			// 	message: "Who is the employee's manager? (select from list)",
-			// 	choices: [managerArray],
-			// },
+			{
+				//This functionality will be added in the future
+				type: "list",
+				name: "employeeManager",
+				message: "Who is the employee's manager? (select from list)",
+				choices: managersArray,
+			},
 		])
 		.then((answers) => {
 			//console.log("ANSWERS!!", answers);
 			//??? in values prevent injection, IIRC.
 			db.query(
-				"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
-				[answers.firstName, answers.lastName, answers.role],
+				"INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (? ,? ,? ,? )",
+				[
+					answers.firstName,
+					answers.lastName,
+					answers.role,
+					answers.employeeManager,
+				],
 				function (err, results) {
 					if (err) throw err;
 					//Prints the updated employee table in nice, neat, table.
-					console.table(results); //console log "you added someone"
+					console.table(results); //console log "Your new employee has been added"
 					console.log(`\n`);
 					viewAllEmployees();
 				}
