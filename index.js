@@ -55,7 +55,7 @@ const mainMenu = () => {
 				addDepartment(); //run addDepartment
 			}
 		});
-	console.log(""); //prints a carriage return, somehow.
+	console.log(`\n`); //hoefully adds a line in the console
 };
 
 //VIEW ALL EMPLOYEES
@@ -115,7 +115,6 @@ const addEmployee = async () => {
 				choices: rolesArray, //the user will see role.title, but inquirer will actually hand over role.id. Like a boss.
 			},
 			{
-				//This functionality will be added in the future
 				type: "list",
 				name: "employeeManager",
 				message: "Who is the employee's manager? (select from list)",
@@ -123,28 +122,69 @@ const addEmployee = async () => {
 			},
 		])
 		.then((answers) => {
-			//console.log("ANSWERS!!", answers);
-			//??? in values prevent injection, IIRC.
 			db.query(
 				"INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (? ,? ,? ,? )",
 				[
-					answers.firstName,
-					answers.lastName,
-					answers.role,
-					answers.employeeManager,
+					answers.firstName, //first ?
+					answers.lastName, //second ?
+					answers.role, //third ?
+					answers.employeeManager, //4th ? from above
 				],
 				function (err, results) {
 					if (err) throw err;
-					//Prints the updated employee table in nice, neat, table.
-					console.table(results); //console log "Your new employee has been added"
+					//console.table(results);
 					console.log(`\n`);
-					viewAllEmployees();
+					console.log(
+						"---->YOUR NEW EMPLOYEE HAS BEEN ADDED TO 'ALL EMPLOYEES'.<----"
+					);
+					console.log(`\n`);
+					mainMenu();
 				}
 			);
 		});
 };
-const updateEmployeeRole = () => {
-	console.log("Functionality Coming Soon!");
+//This contains repeated code, which isn't great, I know.
+const updateEmployeeRole = async () => {
+	const everyone = await db.promise().query("SELECT * FROM employees");
+	const everyoneArray = everyone[0].map((employees) => ({
+		name: employees.first_name + " " + employees.last_name,
+		value: employees.id,
+	}));
+	const roles = await db.promise().query("SELECT * FROM role");
+	//console.log(roles);
+	const rolesArray = roles[0].map((role) => ({
+		name: role.title,
+		value: role.id,
+	}));
+	inquirer
+		.prompt([
+			{
+				type: "list",
+				name: "whichEmployee",
+				message: "Which Employee's role would you like to update?",
+				choices: everyoneArray, //user will see employees.first_name + " " + employees.last_name but inquirer will hand over .id
+			},
+			{
+				type: "list",
+				name: "role",
+				message: "What is the employee's new role? (select from list)",
+				choices: rolesArray, //the user will see role.title, but inquirer will actually hand over role.id.
+			},
+		])
+		.then((answers) => {
+			db.query(
+				"UPDATE employees SET role_id = answers.role WHERE id = answers.whichEmployee"
+			),
+				//[answers.role, answers.whichEmployee],//turning off the prepared statement for now
+				function (err, results) {
+					if (err) throw err;
+					//console.table(results);
+					console.log(`\n`);
+					console.log("---->YOUR EMPLOYEE HAS BEEN ASSIGNED A NEW ROLE'.<----");
+					console.log(`\n`);
+					mainMenu();
+				};
+		});
 };
 
 //ADD A ROLE //Coming Soon
