@@ -146,6 +146,8 @@ const addEmployee = async () => {
 //This contains repeated code, which isn't great, I know.
 const updateEmployeeRole = async () => {
 	const everyone = await db.promise().query("SELECT * FROM employees");
+	//the name value pairs in the everyoneArray are coming from the mapping of "employees" from "everyone""
+	//
 	const everyoneArray = everyone[0].map((employees) => ({
 		name: employees.first_name + " " + employees.last_name,
 		value: employees.id, //the answer value that inquirer will use for "Which Employee's role would you like to update?"
@@ -184,39 +186,44 @@ const updateEmployeeRole = async () => {
 		});
 };
 
-//ADD A ROLE //Coming Soon
-//Do a db query to departments table to get the whole department table
-//User selects a department Name based on those
-
-// const addRole = () => {
-// 	console.log("Functionality coming soon!");
-
-// inquirer
-// 	.prompt([
-// 	{
-// 		type: "input",
-// 		message: "What is the name of the role?",
-// 		name: "titleAdded",
-// 	},
-// 	{
-// 		type: "input",
-// 		message: "What is the salary of the role?",
-// 		name: "salaryAdded",
-// 	},
-// 	{
-// 		type: "list",
-// 		name: "departmentAdded",
-// 		message: "Which department does the role belong to?",
-// 		choices: [
-// 			These choices will come from a db query to the department table
-// 		],
-// 	},
-// ]);
-
-//Do some logic using the department table to find the id that corresponds to the user choice
-// 	//Do a db query to the role table to update, using the titleAdded, salaryAdded, and the id (that corresponds to the user deptname choice) found above
-// 	mainMenu();
-// };
+//Do a db query to departments table to get the whole department list and map to an array of departments
+const addRole = async () => {
+	//the name value pairs in the departmentArray are from the mapping of departments from departmentList
+	const departmentList = await db.promise().query("SELECT * FROM departments");
+	const departmentArray = departmentList[0].map((whatever) => ({
+		name: whatever.deptname,
+		value: whatever.id, //this will be the department id, needed in later update query to the role table
+	}));
+	inquirer
+		.prompt([
+			{
+				type: "input",
+				message: "What is the name of the role?",
+				name: "title",
+			},
+			{
+				type: "input",
+				message: "What is the salary of the role?",
+				name: "salary",
+			},
+			{
+				type: "list",
+				name: "department",
+				message: "Which department does the role belong to?",
+				choices: departmentArray, //should get the value of the department id
+			},
+		])
+		.then((answers) => {
+			console.log(answers);
+			db.query(
+				`INSERT INTO role (title, department_id, salary,) VALUES (${answers.title}, ${answers.department}, ${answers.salary})`
+			),
+				console.log(`\n`);
+			console.log("----> YOUR ROLE HAS BEEN ADDED! <----");
+			console.log(`\n`);
+			mainMenu();
+		});
+};
 
 const addDepartment = () => {
 	console.log("Functionality coming soon!");
