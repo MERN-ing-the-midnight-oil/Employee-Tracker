@@ -17,8 +17,8 @@ const db = mysql.createConnection({
 db.connect(function (error) {
 	if (error) throw error; //alternately could console log the error. if and throw are built in for this scenario
 	console.log("connected to database");
+	mainMenu();
 });
-
 //MAIN MENU SELCTION
 const mainMenu = () => {
 	inquirer
@@ -57,7 +57,7 @@ const mainMenu = () => {
 		});
 	console.log(""); //prints a carriage return, somehow.
 };
-mainMenu();
+
 //VIEW ALL EMPLOYEES
 const viewAllEmployees = () => {
 	db.query("SELECT * FROM employees", function (err, results) {
@@ -83,10 +83,14 @@ const viewAllDepartments = () => {
 const addEmployee = async () => {
 	//await prevents code from running ahead before the query returns the promise.
 	const roles = await db.promise().query("SELECT * FROM role");
-	//console.log(roles[0]);
+	console.log(roles);
 	//gets the titles only (roles) and gives them to a new array called rolesArray
-	const rolesArray = roles[0].map((role) => role.title);
+	const rolesArray = roles[0].map((role) => ({
+		name: role.title,
+		value: role.id,
+	}));
 	//console.log("console logging roles array ", rolesArray);
+
 	inquirer
 		.prompt([
 			{
@@ -103,7 +107,7 @@ const addEmployee = async () => {
 				type: "list",
 				name: "role",
 				message: "What is the employee's role? (select from list)",
-				choices: rolesArray,
+				choices: rolesArray, //the user will see role.title, inquirer will hand back role.id
 			},
 			// { //This functionality will be added in the future
 			// 	type: "list",
@@ -114,15 +118,18 @@ const addEmployee = async () => {
 		])
 		.then((answers) => {
 			//console.log("ANSWERS!!", answers);
+			//??? in values prevent injection, IIRC.
 			db.query(
 				"INSERT INTO employees (first_name, last_name, role_id) VALUES (? ,? ,?)",
 				[answers.firstName, answers.lastName, answers.role],
 				function (err, results) {
+					if (err) throw err;
 					//Prints the updated employee table in nice, neat, table.
-					console.table(results);
+					console.table(results); //console log "you added someone"
+					console.log(`\n`);
+					viewAllEmployees();
 				}
 			);
-			mainMenu();
 		});
 };
 const updateEmployeeRole = () => {
@@ -130,33 +137,38 @@ const updateEmployeeRole = () => {
 };
 
 //ADD A ROLE //Coming Soon
-const addRole = () => {
-	console.log("Functionality coming soon!");
-	// inquirer.prompt([
-	// 	{
-	// 		type: "input",
-	// 		message: "What is the name of the role?",
-	// 		name: "roleAdded",
-	// 	},
-	// 	{
-	// 		type: "input",
-	// 		message: "What is the salary of the role?",
-	// 		name: "salaryAdded",
-	// 	},
-	// 	{
-	// 		type: "list",
-	// 		name: "departmentAdded",
-	// 		message: "Which department does the role belong to?",
-	// 		choices: [
-	// 			"Dummy Role 1",
-	// 			"Dummy Role 2",
-	// 			"The Real thing Coming Soon",
-	// 			"And it will be Dynamic",
-	// 		],
-	// 	},
-	// ]);
-	mainMenu();
-};
+//Do a db query to departments table to get the whole department table
+//User selects a department Name based on those
+
+// const addRole = () => {
+// 	console.log("Functionality coming soon!");
+
+// inquirer
+// 	.prompt([
+// 	{
+// 		type: "input",
+// 		message: "What is the name of the role?",
+// 		name: "titleAdded",
+// 	},
+// 	{
+// 		type: "input",
+// 		message: "What is the salary of the role?",
+// 		name: "salaryAdded",
+// 	},
+// 	{
+// 		type: "list",
+// 		name: "departmentAdded",
+// 		message: "Which department does the role belong to?",
+// 		choices: [
+// 			These choices will come from a db query to the department table
+// 		],
+// 	},
+// ]);
+
+//Do some logic using the department table to find the id that corresponds to the user choice
+// 	//Do a db query to the role table to update, using the titleAdded, salaryAdded, and the id (that corresponds to the user deptname choice) found above
+// 	mainMenu();
+// };
 
 const addDepartment = () => {
 	console.log("Functionality coming soon!");
