@@ -30,7 +30,7 @@
 
 ### Use to keep track of your employee teams and handle promotions and assignments.
 
-### Here is a WALK THROUGH VIDEO: <> https://drive.google.com/file/d/1EXFQwqBrUMCAsp37XHsZdDFjErIitvZc/view:
+### Here is a WALK THROUGH VIDEO: <>https://drive.google.com/file/d/1iJv_3YIaGsj8JPUmZd-GV1ZTAgd9grn9/view:
 
 ## License
 

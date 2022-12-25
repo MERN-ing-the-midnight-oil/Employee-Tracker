@@ -32,7 +32,7 @@ const mainMenu = () => {
 					"Add Employee",
 					"Update Employee Role",
 					"View All Roles",
-					"Add Role",
+					"Add Role (DOES NOT WORK)",
 					"View All Departments",
 					"Add Department",
 				],
@@ -80,6 +80,7 @@ const viewAllDepartments = () => {
 	mainMenu();
 };
 
+//ADD AN EMPLOYEE
 const addEmployee = async () => {
 	//await prevents code from running ahead before the query returns the promise.
 	//gets the titles only (roles) and gives them to a new array called rolesArray
@@ -143,7 +144,8 @@ const addEmployee = async () => {
 			);
 		});
 };
-//This contains repeated code, which isn't great, I know.
+
+//UPDATE AN EMPLOYEE ROLE
 const updateEmployeeRole = async () => {
 	const everyone = await db.promise().query("SELECT * FROM employees");
 	//the name value pairs in the everyoneArray are coming from the mapping of "employees" from "everyone""
@@ -186,14 +188,16 @@ const updateEmployeeRole = async () => {
 		});
 };
 
-//Do a db query to departments table to get the whole department list and map to an array of departments
+//ADD A ROLE (NOT WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
 const addRole = async () => {
 	//the name value pairs in the departmentArray are from the mapping of departments from departmentList
-	const departmentList = await db.promise().query("SELECT * FROM departments");
-	const departmentArray = departmentList[0].map((whatever) => ({
-		name: whatever.deptname,
-		value: whatever.id, //this will be the department id, needed in later update query to the role table
+	const departments = await db.promise().query("SELECT * FROM departments");
+	console.log(departments);
+	const departmentArray = departments[0].map((departments) => ({
+		name: departments.deptname,
+		value: departments.id, //this will be the department id, needed in later update query to the role table
 	}));
+	console.log(departmentArray);
 	inquirer
 		.prompt([
 			{
@@ -214,39 +218,49 @@ const addRole = async () => {
 			},
 		])
 		.then((answers) => {
-			console.log(answers);
 			db.query(
-				`INSERT INTO role (title, department_id, salary,) VALUES (${answers.title}, ${answers.department}, ${answers.salary})`
-			),
-				console.log(`\n`);
-			console.log("----> YOUR ROLE HAS BEEN ADDED! <----");
-			console.log(`\n`);
-			mainMenu();
+				"INSERT INTO role (title, department_id, salary) VALUES (? ,? ,? )",
+				[
+					answers.title, //first ?
+					answers.salary, //second ?
+					answers.department, //third ?
+				],
+				function (err, results) {
+					if (err) throw err;
+					//console.table(results);
+					console.log(`\n`);
+					console.log("---->YOUR NEW ROLE HAS BEEN ADDED!.<----");
+					console.log(`\n`);
+					mainMenu();
+				}
+			);
 		});
 };
 
-const addDepartment = () => {
-	console.log("Functionality coming soon!");
+//ADD A DEPARTMENT
+const addDepartment = async () => {
+	inquirer
+		.prompt([
+			{
+				type: "input",
+				message: "What is the name of the new department?",
+				name: "newDept",
+			},
+		])
+		.then((answers) => {
+			db.query(
+				"INSERT INTO DEPARTMENTS (deptname) VALUES (?)",
+				[answers.newDept],
+				function (err, results) {
+					if (err) throw err;
+					console.table(results);
+					console.log(`\n`);
+					console.log(
+						"---->YOUR NEW DEPARTMENT HAS BEEN ADDED TO 'DEPARTMENTS'.<----"
+					);
+					console.log(`\n`);
+					mainMenu();
+				}
+			);
+		});
 };
-
-//MAIN MENU
-//What would you like to do? (Use arrow keys to navigate)
-
-//View All Employees
-// ------The table will have id, first name, last name, title, department, salary, manager.
-//Add Employee
-//-----What is the employee's first name?
-//-----What is the employee's last name?
-//-----What is the employee's role? (select from list)
-//-----Who is the employee's manager? (select from list)
-//Update Employee Role
-//------Which employee's role do you want to update? (select from list of all employees)
-//View All Roles
-//Add Role
-//------What is the name of the role you would like to add?
-//----- Wich department does the role belong to? (select from list)
-//View All Departments
-//-------id, name,  2, Engineering; 3, Finance; 4, Legal; 1, Sales
-//Add Department
-//--------What is the name of the department you would like to add?
-//-------------(Move up and down to reveal more choices)
